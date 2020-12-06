@@ -2,6 +2,8 @@
 from __future__ import division
 import numpy as np
 import pandas as pd
+import matplotlib  
+matplotlib.use('TkAgg') # For MacOS, comment out when using other OSs
 import matplotlib.pyplot as plt
 import seaborn as sns
 from common.Base import get_logger, bc_star
@@ -15,7 +17,7 @@ def ranking(tgt_df):
     return rank_df
 
 def find_nearest(array, value):
-	idx = (np.abs(array - value)).argmin()
+	idx = np.argmin(np.abs(array - value))
 	return idx
 
 def permu_dis(x, Y, rank_Y):
@@ -23,17 +25,24 @@ def permu_dis(x, Y, rank_Y):
 	d_xy = [max(abs(rank_z - rank_Y.iloc[i])) for i in xrange(len(rank_Y))]
 	return min(d_xy)
 
-def non_dis_producing(df_ori):
+def non_dis_producing(df_ori, sample_frac=None):
 	col_name = list(df_ori)
 	non_dis = pd.DataFrame()
 	non_dis[col_name[0]] = df_ori[col_name[0]].drop_duplicates()
 	non_dis['key'] = np.ones(len(non_dis))
+	
 	for i in xrange(1, len(col_name)):
 		tmp = pd.DataFrame()
 		tmp[col_name[i]] = df_ori[col_name[i]].drop_duplicates()
 		tmp['key'] = np.ones(len(tmp))
 		non_dis = non_dis.merge(tmp)
 	non_dis = non_dis[col_name]
+
+	if sample_frac is None:
+		non_dis = non_dis.sample(n=len(df_ori)).reset_index(drop=True)
+	else:
+		non_dis = non_dis.sample(frac=sample_frac).reset_index(drop=True)
+
 	return non_dis
 
 def dl_test(df_ori, df_ano):
@@ -45,8 +54,6 @@ def dl_test(df_ori, df_ano):
 	return dist, dist2
 
 def permutataion(tgt_df):
-	#if p_tgt directly = tgt_df, tgt_df would be shuffled too when shuffling p_tgt
-	#.copy() can solve this problem
 	p_tgt = tgt_df.copy()
 	for cn in list(tgt_df):
 	    np.random.shuffle(p_tgt[cn])
@@ -92,7 +99,7 @@ def ad_test(df_ori, df_ano):
 def sns_plot(dist, dist2, lab1, lab2):
 	sns.distplot(dist, kde_kws={"label":lab1})
 	sns.distplot(dist2, kde_kws={"label":lab2})
-	sns.plt.show()	
+	plt.show()	
 
 def test_option(df_ori, df_ano):
 	print "\n1. Dictionary Linkage Test"
@@ -116,10 +123,7 @@ def Bhattacharyya(dist, dist2):
 	d_max = max(max(dist), max(dist2))
 	dist_pmf = [dist.count(i)/len(dist) for i in xrange(d_min, d_max+1)]
 	dist2_pmf = [dist2.count(i)/len(dist2) for i in xrange(d_min, d_max+1)]
-	#print dist_pmf
-	#print dist2_pmf
 	bc_coef = sum([np.sqrt(dist_pmf[i]*dist2_pmf[i]) for i in xrange(d_max-d_min+1)])
-	#print bc_coef
 	bc_star(bc_coef)
 
 def dra_summary(df_ori, df_ano):

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import warnings
 import pandas as pd
 import evaluation.yp as yp
 import evaluation.y as y
@@ -7,6 +8,8 @@ import evaluation.dra as dra
 import evaluation.idt as idt
 import common.constant as c
 from common.Base import normalize, check_log, load_df_ori, load_df_ano, load_domain
+
+warnings.filterwarnings("ignore")
 
 class Menu(object):
 	def __init__(self):
@@ -24,39 +27,51 @@ class Menu(object):
 		print "4. Disclosure Risk Assessment via Record Linkage by a Maximum-Knowledge Attacker"
 		print "5. Simple Identity Disclosure Test"
 		print "6. Summary"
-		print "7. Exit"
+		print "7. Reload original dataset"
+		print "8. Reload anonymized dataset"
+		print "9. Reload domain file"
+		print "10. Exit"
 		print 67 * "-"
 
 	def start_menu(self):
-		while 1:
-			self.print_menu()
-			choice = input("Enter your choice [1-7]: ")
-			if choice==1:     
-				yp.yp_privacy(self.df_ori, self.df_ano)
-				yp.norm_yp_privacy(self.norm_ori, self.norm_ano)
-			elif choice==2:
-				print "\n1. min"
-				print "2. median"
-				opt = raw_input("Enter your choice [1-2]: ")
-				y.y_privacy(self.df_ori, self.df_ano, opt)
-				y.norm_y_privacy(self.norm_ori, self.norm_ano, opt)
-			elif choice==3:
-				p.p_privacy(self.df_ori, self.df_ano)
-			elif choice==4:
-				dra.test_option(self.df_ori, self.df_ano)
-			elif choice==5:
-				idt.pq_test(self.df_ori, self.df_ano)
-			elif choice==6:
-				yp.yp_summary(self.norm_ori, self.norm_ano)
-				y.y_summary(self.norm_ori, self.norm_ano)
-				p.p_summary(self.df_ori, self.df_ano)
-				dra.dra_summary(self.df_ori, self.df_ano)
-				idt.pq_summary(self.df_ori, self.df_ano)
-			elif choice==7:
-				break
-			else:
-				raw_input("No this option. Enter any key to try again.")
+		while True:
+			try:
+				self.print_menu()
+				choice = input("Enter your choice [1-7]: ")
+				if choice==1:     
+					yp.yp_privacy(self.df_ori, self.df_ano)
+					yp.norm_yp_privacy(self.norm_ori, self.norm_ano)
+				elif choice==2:
+					print "\n1. min"
+					print "2. median"
+					opt = raw_input("Enter your choice [1-2]: ")
+					y.y_privacy(self.df_ori, self.df_ano, opt)
+					y.norm_y_privacy(self.norm_ori, self.norm_ano, opt)
+				elif choice==3:
+					p.p_privacy(self.df_ori, self.df_ano)
+				elif choice==4:
+					dra.test_option(self.df_ori, self.df_ano)
+				elif choice==5:
+					idt.pq_test(self.df_ori, self.df_ano)
+				elif choice==6:
+					yp.yp_summary(self.norm_ori, self.norm_ano)
+					y.y_summary(self.norm_ori, self.norm_ano)
+					p.p_summary(self.df_ori, self.df_ano)
+					dra.dra_summary(self.df_ori, self.df_ano)
+					idt.pq_summary(self.df_ori, self.df_ano)
+				elif choice==7:
+					self.df_ori = load_df_ori()
+				elif choice==8:
+					self.df_ano = load_df_ano()
+				elif choice==9:
+					self.domain = load_domain()
+				elif choice==10:
+					break
+				else:
+					raw_input("No this option. Enter any key to try again.")
 
+			except KeyboardInterrupt:
+				raise SystemExit
 
 
 if __name__ == '__main__':

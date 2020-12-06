@@ -24,8 +24,9 @@ def m2(df_ori, df_ano):
 	tgt_clmns = tgt_clmns.split(' ')
 	sort_ori = df_ori.sort_values(tgt_clmns, axis=0)
 	sort_ano = df_ano.sort_values(tgt_clmns, axis=0)
-	match = pd.DataFrame({'ori_index' : list(sort_ori.index), 'ano_index' : list(sort_ano.index)})
-	q2 = list(match.sort_values('ori_index', axis=0)['ano_index'])
+	match = pd.DataFrame({'ori_index' : np.array(sort_ori.index), 
+						  'ano_index' : np.array(sort_ano.index)})
+	q2 = list(match.sort_values('ano_index', axis=0)['ori_index'])
 	q2 = map(lambda x: x+1, q2)
 	return q2
 

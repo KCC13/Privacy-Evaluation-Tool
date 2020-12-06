@@ -3,8 +3,6 @@ import numpy as np
 import logging
 from common.Base import get_logger, star
 
-Log = get_logger(__name__)
-
 def algorithm(df_ori, df_ano, option, normalization):
 	min_ary = np.zeros(len(df_ano))
 	opt = {'1': 'min', '2': 'median'}
@@ -13,6 +11,7 @@ def algorithm(df_ori, df_ano, option, normalization):
 	y = min(min_ary) if option == '1' else np.median(min_ary)
 	print 'y = {}'.format(y)
 	
+	Log = get_logger(__name__)
 	Log.info({"y": y, 'option': opt[option], "normalization": normalization})
 	logging.shutdown()
 

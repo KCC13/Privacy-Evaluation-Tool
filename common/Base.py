@@ -11,6 +11,8 @@ def load_df_ori():
 			file_path = raw_input("Input the file path of original dataset: ")
 			df_ori = pd.read_csv(file_path, sep=",")
 			break
+		except KeyboardInterrupt:
+			raise SystemExit
 		except:
 			print "Fail to read original dataset, plz try again."
 	return df_ori
@@ -21,6 +23,8 @@ def load_df_ano():
 			file_path = raw_input("Input the file path of anonymized dataset: ")
 			df_ano = pd.read_csv(file_path, sep=",")
 			break
+		except KeyboardInterrupt:
+			raise SystemExit
 		except:
 			print "Fail to read anonymized dataset, plz try again."
 	return df_ano
@@ -33,6 +37,8 @@ def load_domain():
 				domain = f.read()
 			domain = domain.split(" ")
 			break
+		except KeyboardInterrupt:
+			raise SystemExit
 		except:
 			print "Fail to read domain, plz try again."
 	return domain

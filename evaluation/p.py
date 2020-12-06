@@ -8,37 +8,12 @@ from itertools import groupby
 import networkx 
 from common.Base import get_logger, prob_star
 from networkx.algorithms.components.connected import connected_components
-
-Log = get_logger(__name__)
-
-def find_crosstab(col1, col2):
-	xtab = pd.crosstab(col1, col2)
-	return np.asarray(xtab)
-
-def get_expected_sum(xmat):
-	rsums = np.sum(xmat, axis = 0).reshape(-1,1)
-	csums = np.sum(xmat, axis = 1).reshape(1,-1)
-	expected_sum = rsums * csums / float(np.sum(csums))
-	return expected_sum
-
-def get_mi(xmat):
-	xmat = xmat / float(np.sum(xmat))
-	expected_sum = get_expected_sum(xmat)
-	summand = xmat/expected_sum.T
-	zeros = np.where(summand == 0)
-	summand[zeros] = 1
-	return np.sum(xmat * np.log(summand))
+from scipy.stats import chi2_contingency
 
 def g_test(col1, col2, cramer):
-	xmat = find_crosstab(col1, col2)
-	mi = get_mi(xmat)
-	attr1_lvs = sorted(set(col1))
-	attr2_lvs = sorted(set(col2))
-	min_length = min(len(attr1_lvs), len(attr2_lvs)) - 1
-
-	cv2_lh = mi
-	cv2_rh = (cramer ** 2) * min_length/2.
-	return cv2_lh >= cv2_rh
+	contingency_table = pd.crosstab(col1, col2)
+	_, p, _, _ = chi2_contingency(contingency_table, lambda_="log-likelihood")
+	return p < 0.05
 
 def dep_edges(df_ano, cramer):
 	filtered_pairs = []
@@ -60,7 +35,6 @@ def algorithm(df_ori, df_ano, normalization):
 	filtered_pairs = dep_edges(df_ano, 0.2)
 	G = to_graph(list(df_ano), filtered_pairs)
 	ccs = [list(cc) for cc in connected_components(G)]
-
 	df_predict = df_ano[ccs[0]].drop_duplicates()
 	df_predict['key'] = np.ones(len(df_predict))
 	for i in xrange(1, len(ccs)):
@@ -72,6 +46,7 @@ def algorithm(df_ori, df_ano, normalization):
 	p = (Xi / len(df_predict)) * (Xi / len(df_ori))
 	print "p: {}".format(p)
 
+	Log = get_logger(__name__)
 	Log.info({"p": p, "Xi": Xi, "normalization": normalization})
 	logging.shutdown()
 

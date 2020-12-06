@@ -5,8 +5,6 @@ import logging
 from scipy.optimize import linear_sum_assignment
 from common.Base import get_logger, prob_star
 
-Log = get_logger(__name__)
-
 def algorithm(df_ori, df_ano, normalization):
 	y = float(raw_input("Input y: "))
 	p = float(raw_input("Input p: "))
@@ -21,7 +19,8 @@ def algorithm(df_ori, df_ano, normalization):
 		print "fulfilled"
 	else:
 		print "not fulfilled"
-
+	
+	Log = get_logger(__name__)
 	Log.info({"y": y, "p": p, "pp": pp, "fulfilled": p >= pp, "normalization": normalization})
 	logging.shutdown()
 
